@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cricket Scout | Athlete Scouting Platform</title>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:#101722;color:#fff}
+header{background:#172333;padding:18px 5%;display:flex;
+justify-content:space-between;align-items:center;flex-wrap:wrap;gap:15px}
+.logo{font-size:23px;font-weight:bold;color:#37df91}
+nav{display:flex;gap:18px;flex-wrap:wrap}
+nav a{color:#cbd5e1;text-decoration:none;font-size:14px}
+nav a:hover{color:#37df91}
+.container{max-width:1250px;margin:auto;padding:25px}
+.hero{padding:35px 0}
+.hero h1{font-size:32px;margin-bottom:12px}
+.hero p{color:#9caec0}
+.green{color:#37df91}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:15px;margin:25px 0}
+.stat,.panel,.player{background:#1b2939;padding:20px;border-radius:12px;border:1px solid #2c3d50}
+.stat p{color:#9caec0;font-size:13px}
+.stat h2{margin-top:12px;color:#37df91;font-size:28px}
+.section-title{margin:35px 0 18px}
+.controls{display:flex;gap:10px;flex-wrap:wrap;margin:20px 0}
+input,select,textarea{padding:12px;border:1px solid #394b60;background:#101722;color:white;border-radius:7px;min-width:0}
+.controls input{flex:1;min-width:180px}
+button{background:#37df91;color:#102018;border:0;padding:12px 17px;border-radius:7px;font-weight:bold;cursor:pointer}
+button:hover{opacity:.85}
+.players{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:15px}
+.player{cursor:pointer}
+.player h3{margin:12px 0}
+.player p{color:#b3c0cf;margin:8px 0;font-size:14px}
+.avatar{height:55px;width:55px;border-radius:50%;background:#285640;display:grid;place-items:center;font-size:20px;font-weight:bold;color:#37df91}
+.rating{font-size:23px;color:#37df91;font-weight:bold}
+.tag{display:inline-block;background:#294b3b;padding:6px 10px;border-radius:20px;font-size:12px;margin-top:8px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.actions button{font-size:12px;padding:9px}
+.secondary{background:#34465b;color:white}
+.danger{background:#a94343;color:white}
+table{width:100%;border-collapse:collapse;min-width:500px}
+th,td{text-align:left;padding:13px;border-bottom:1px solid #34465b}
+th{color:#37df91}
+.table-wrap{overflow-x:auto}
+label{display:block;color:#b3c0cf;font-size:13px;margin:13px 0 6px}
+.modal{position:fixed;inset:0;background:#000b;display:none;align-items:center;justify-content:center;padding:15px;z-index:10}
+.modal-content{background:#1b2939;border-radius:15px;padding:25px;width:100%;max-width:520px;max-height:90vh;overflow:auto}
+.modal-content input,.modal-content select,.modal-content textarea{width:100%}
+.modal-content textarea{min-height:80px}
+.close{float:right;background:#34465b;color:white}
+footer{text-align:center;padding:30px;color:#8291a4}
+.empty{padding:30px;color:#a9b7c6;text-align:center}
+@media(max-width:600px){
+.container{padding:16px}
+.hero h1{font-size:26px}
+header{padding:16px}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<div class="logo">🏏 CRICKET SCOUT</div>
+<nav>
+<a href="#dashboard">Dashboard</a>
+<a href="#players">Players</a>
+<a href="#compare">Compare</a>
+<a href="#reports">Reports</a>
+</nav>
+</header>
+
+<main class="container">
+
+<section class="hero" id="dashboard">
+<h1>Athlete <span class="green">Scouting Platform</span></h1>
+<p>Discover talent. Evaluate performance. Build winning teams.</p>
+</section>
+
+<div class="stats">
+<div class="stat"><p>Total Players</p><h2 id="total">0</h2></div>
+<div class="stat"><p>Shortlisted</p><h2 id="shortlisted">0</h2></div>
+<div class="stat"><p>Batters</p><h2 id="batters">0</h2></div>
+<div class="stat"><p>Bowlers</p><h2 id="bowlers">0</h2></div>
+</div>
+
+<section id="players">
+<h2 class="section-title">Player Database</h2>
+
+<div class="controls">
+<input id="search" placeholder="Search player name...">
+<select id="roleFilter">
+<option value="All">All Roles</option>
+<option>Batter</option>
+<option>Bowler</option>
+<option>All-rounder</option>
+<option>Wicketkeeper</option>
+</select>
+<select id="countryFilter">
+<option value="All">All Countries</option>
+<option>India</option>
+<option>Australia</option>
+<option>England</option>
+<option>Pakistan</option>
+<option>New Zealand</option>
+<option>South Africa</option>
+</select>
+<button onclick="openForm()">+ Add Player</button>
+</div>
+
+<div class="players" id="playerList"></div>
+</section>
+
+<section id="compare">
+<h2 class="section-title">Player Comparison</h2>
+<div class="panel">
+<p>Select players from the database to shortlist them. Compare their scouting ratings below.</p>
+<div class="table-wrap" style="margin-top:20px">
+<table>
+<thead><tr><th>Player</th><th>Role</th><th>Batting</th><th>Bowling</th><th>Overall</th></tr></thead>
+<tbody id="compareList"></tbody>
+</table>
+</div>
+</div>
+</section>
+
+<section id="reports">
+<h2 class="section-title">Scouting Reports</h2>
+<div class="panel">
+<div class="controls">
+<select id="reportPlayer"></select>
+<button onclick="showReport()">View Report</button>
+</div>
+<div id="reportOutput">Choose a player to view the scouting report.</div>
+</div>
+</section>
+
+</main>
+
+<footer>CRICKET SCOUT © 2026 | Athlete Evaluation & Talent Discovery</footer>
+
+<div class="modal" id="modal">
+<div class="modal-content">
+<button class="close" onclick="closeForm()">✕</button>
+<h2 id="formTitle">Register Player</h2>
+<form id="playerForm">
+<label>Player Name</label>
+<input id="name" required>
+<label>Country</label>
+<input id="country" required>
+<label>Age</label>
+<input id="age" type="number" min="1" max="100" required>
+<label>Playing Role</label>
+<select id="role">
+<option>Batter</option>
+<option>Bowler</option>
+<option>All-rounder</option>
+<option>Wicketkeeper</option>
+</select>
+<label>Batting Rating (0–100)</label>
+<input id="bat" type="number" min="0" max="100" value="50" required>
+<label>Bowling Rating (0–100)</label>
+<input id="bowl" type="number" min="0" max="100" value="50" required>
+<label>Fielding Rating (0–100)</label>
+<input id="field" type="number" min="0" max="100" value="50" required>
+<label>Scouting Notes</label>
+<textarea id="notes" placeholder="Player strengths, performance, potential..."></textarea>
+<br><br>
+<button type="submit">Save Player</button>
+</form>
+</div>
+</div>
+
+<script>
+
+// Initial demonstration profiles
+let players = [
+{id:1,name:"Virat Kohli",country:"India",age:37,role:"Batter",bat:98,bowl:20,field:90,notes:"Demonstration profile. Known for batting consistency.",short:false},
+{id:2,name:"Jasprit Bumrah",country:"India",age:32,role:"Bowler",bat:30,bowl:99,field:85,notes:"Demonstration profile. Specialist fast bowler.",short:true},
+{id:3,name:"Hardik Pandya",country:"India",age:33,role:"All-rounder",bat:85,bowl:80,field:88,notes:"Demonstration all-rounder profile.",short:false},
+{id:4,name:"Steve Smith",country:"Australia",age:37,role:"Batter",bat:96,bowl:25,field:85,notes:"Demonstration batting profile.",short:false},
+{id:5,name:"Ben Stokes",country:"England",age:35,role:"All-rounder",bat:90,bowl:85,field:87,notes:"Demonstration all-rounder profile.",short:false}
+];
+
+let editingId = null;
+
+const $ = id => document.getElementById(id);
+
+function overall(p){
+return Math.round((p.bat+p.bowl+p.field)/3);
+}
+
+function update(){
+$("total").textContent=players.length;
+$("shortlisted").textContent=players.filter(p=>p.short).length;
+$("batters").textContent=players.filter(p=>p.role==="Batter").length;
+$("bowlers").textContent=players.filter(p=>p.role==="Bowler").length;
+
+let q=$("search").value.toLowerCase();
+let role=$("roleFilter").value;
+let country=$("countryFilter").value;
+
+let data=players.filter(p=>
+p.name.toLowerCase().includes(q) &&
+(role==="All" || p.role===role) &&
+(country==="All" || p.country.toLowerCase()===country.toLowerCase())
+);
+
+$("playerList").innerHTML="";
+
+if(!data.length){
+$("playerList").innerHTML='<div class="empty">No players found.</div>';
+}
+
+data.forEach(p=>{
+let card=document.createElement("div");
+card.className="player";
+let avatar=document.createElement("div");
+avatar.className="avatar";
+avatar.textContent=p.name.split(" ").map(x=>x[0]).join("");
+
+let title=document.createElement("h3");
+title.textContent=p.name;
+let info=document.createElement("p");
+info.textContent="🌍 "+p.country+" | Age: "+p.age;
+let position=document.createElement("p");
+position.textContent="🏏 "+p.role;
+let rating=document.createElement("div");
+rating.className="rating";
+rating.textContent=overall(p)+"/100";
+let tag=document.createElement("span");
+tag.className="tag";
+tag.textContent=p.short?"★ Shortlisted":"Player Profile";
+
+let actions=document.createElement("div");
+actions.className="actions";
+let shortlist=document.createElement("button");
+shortlist.textContent=p.short?"Remove Shortlist":"Shortlist";
+shortlist.onclick=e=>{
+e.stopPropagation();
+p.short=!p.short;
+update();
+};
+let edit=document.createElement("button");
+edit.className="secondary";
+edit.textContent="Edit";
+edit.onclick=e=>{
+e.stopPropagation();
+openForm(p.id);
+};
+let del=document.createElement("button");
+del.className="danger";
+del.textContent="Delete";
+del.onclick=e=>{
+e.stopPropagation();
+if(confirm("Delete "+p.name+"?")){
+players=players.filter(x=>x.id!==p.id);
+update();
+}
+};
+
+actions.append(shortlist,edit,del);
+card.append(avatar,title,info,position,rating,tag,actions);
+card.onclick=()=>profile(p.id);
+$("playerList").append(card);
+});
+
+$("compareList").innerHTML=players.filter(p=>p.short).map(p=>
+`<tr><td>${escapeHTML(p.name)}</td><td>${escapeHTML(p.role)}</td><td>${p.bat}</td><td>${p.bowl}</td><td>${overall(p)}/100</td></tr>`
+).join("") || '<tr><td colspan="5">Shortlist players to compare.</td></tr>';
+
+$("reportPlayer").innerHTML=players.map(p=>
+`<option value="${p.id}">${escapeHTML(p.name)}</option>`
+).join("");
+}
+
+function escapeHTML(s){
+return String(s).replace(/[&<>"']/g,c=>({
+"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+}[c]));
+}
+
+function profile(id){
+let p=players.find(x=>x.id===id);
+alert("PLAYER PROFILE\n\nName: "+p.name+
+"\nCountry: "+p.country+"\nAge: "+p.age+
+"\nRole: "+p.role+"\nOverall Rating: "+overall(p)+"/100"+
+"\n\nNotes: "+p.notes);
+}
+
+function openForm(id=null){
+editingId=id;
+$("playerForm").reset();
+$("formTitle").textContent=id?"Edit Player":"Register Player";
+let p=players.find(x=>x.id===id);
+if(p){
+["name","country","age","role","bat","bowl","field","notes"]
+.forEach(k=>$(k).value=p[k]);
+}
+$("modal").style.display="flex";
+}
+
+function closeForm(){
+$("modal").style.display="none";
+editingId=null;
+}
+
+$("playerForm").addEventListener("submit",e=>{
+e.preventDefault();
+
+let p={
+name:$("name").value.trim(),
+country:$("country").value.trim(),
+age:Number($("age").value),
+role:$("role").value,
+bat:Number($("bat").value),
+bowl:Number($("bowl").value),
+field:Number($("field").value),
+notes:$("notes").value.trim()
+};
+
+if(editingId){
+let old=players.find(x=>x.id===editingId);
+Object.assign(old,p);
+}else{
+players.push({...p,id:Date.now(),short:false});
+}
+
+closeForm();
+update();
+});
+
+function showReport(){
+let p=players.find(x=>x.id===Number($("reportPlayer").value));
+if(!p)return;
+$("reportOutput").innerHTML=`
+<h3>${escapeHTML(p.name)}</h3>
+<p>Country: ${escapeHTML(p.country)}</p>
+<p>Role: ${escapeHTML(p.role)}</p>
+<p>Batting: ${p.bat}/100</p>
+<p>Bowling: ${p.bowl}/100</p>
+<p>Fielding: ${p.field}/100</p>
+<h3 style="margin-top:15px">Overall: ${overall(p)}/100</h3>
+<p style="margin-top:12px">${escapeHTML(p.notes || "No scouting notes added.")}</p>`;
+}
+
+["search","roleFilter","countryFilter"].forEach(id=>{
+$(id).addEventListener("input",update);
+});
+
+update();
+
+</script>
+</body>
+</html>
